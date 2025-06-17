@@ -17,17 +17,13 @@ function App() {
   useEffect(() => {
     fetch('https://linea-backend.onrender.com/api/tratti/')
       .then(res => res.json())
-      .then(data => {
-        setTratti(data);
-        data.forEach(tratto => {
-          const el = document.getElementById(tratto.nome.toUpperCase());
-          if (el && colori[tratto.stato]) {
-            el.setAttribute('fill', colori[tratto.stato]);
-            el.onclick = () => setTrattoSelezionato(tratto);
-          }
-        });
-      });
+      .then(data => setTratti(data));
   }, []);
+
+  const getFill = (nome) => {
+    const tratto = tratti.find(t => t.nome.toUpperCase() === nome);
+    return tratto ? colori[tratto.stato] || 'gray' : 'gray';
+  };
 
   const handleSubmit = () => {
     const payload = {
@@ -53,7 +49,25 @@ function App() {
   return (
     <div className="App">
       <h2>Stato linea manutentiva</h2>
-      <object type="image/svg+xml" data="/impianto.svg" width="600" height="240" />
+      <svg width="600" height="300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="100" height="30" fill="pink" stroke="black" />
+        {['TRATTO1', 'TRATTO2', 'TRATTO3', 'TRATTO4', 'TRATTO5'].map((nome, idx) => (
+          <rect key={nome}
+            x="110"
+            y={10 + 40 * idx}
+            width="400"
+            height="30"
+            fill={getFill(nome)}
+            stroke="black"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              const t = tratti.find(t => t.nome.toUpperCase() === nome);
+              if (t) setTrattoSelezionato(t);
+            }}
+          />
+        ))}
+        <rect x="510" y="170" width="80" height="30" fill="pink" stroke="black" />
+      </svg>
 
       {trattoSelezionato && (
         <div className="modal">
